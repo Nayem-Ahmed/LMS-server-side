@@ -57,35 +57,37 @@ async function run() {
             res.send(result)
         })
 
-        // app.put('/addbooks/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const filter = { _id: new ObjectId(id) }
-        //     const Option = { upsert: true }
-        //     const updateProduct = req.body
-        //     const Product = {
-        //         $set: {
-        //             bookImage: updateProduct.bookImage,
-        //             bookName: updateProduct.bookName,
-        //             quantity: updateProduct.quantity,
-        //             authorName: updateProduct.authorName,
-        //             category: updateProduct.category,
-        //             Rating: updateProduct.Rating,
-        //         }
-        //     }
-        //     const result = await addBookCollection.updateOne(filter, Product, Option)
-        //     res.send(result)
+        app.put('/addbooks/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) }
+            const Option = { upsert: true }
+            const updateProduct = req.body
+            const Product = {
+                $set: {
+                    bookImage: updateProduct.bookImage,
+                    bookName: updateProduct.bookName,
+                    authorName: updateProduct.authorName,
+                    category: updateProduct.category,
+                    Rating: updateProduct.Rating,
+                }
+            }
+            const result = await addBookCollection.updateOne(filter, Product, Option)
+            res.send(result)
 
-        // })
+        })
+
         // post borrowed books
         app.post('/borrowed', async (req, res) => {
             const borrowedbook = req.body;
             const result = await borrowedBooksCollection.insertOne(borrowedbook)
             res.send(result)
         })
+        // get all borrowed book
         app.get('/borrowed', async (req, res) => {
             const result = await borrowedBooksCollection.find().toArray()
             res.send(result)
         })
+        // get borrowed params
         app.get('/borrowed/:email', async (req, res) => {
             const email = req.params.email;
             const fiter = { email: email }
