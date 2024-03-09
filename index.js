@@ -7,7 +7,7 @@ const port = process.env.PORT || 5000
 
 app.use(cors({
     origin: ['http://localhost:5173', 'http://localhost:5174'],
-    credentials: true
+    credentials: true,
 }));
 app.use(express.json())
 
@@ -56,7 +56,7 @@ async function run() {
             const result = await addBookCollection.findOne({ _id: new ObjectId(id) })
             res.send(result)
         })
-
+        // Books update
         app.put('/addbooks/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) }
@@ -92,6 +92,23 @@ async function run() {
             const email = req.params.email;
             const fiter = { email: email }
             const result = await borrowedBooksCollection.find(fiter).toArray()
+            res.send(result)
+        })
+
+        //-------------------
+        app.patch('/updateQuantity/:id', async (req, res) => {
+            const id = req.params.id
+            let { quantity } = req.body
+            const filter = { _id: new ObjectId(id) }
+            if (quantity === null) {
+                quantity = 0;
+            }
+            const update = {
+                $set: {
+                    quantity: quantity
+                }
+            }
+            const result = await addBookCollection.updateOne(filter, update)
             res.send(result)
         })
 
