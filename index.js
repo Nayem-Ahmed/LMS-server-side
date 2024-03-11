@@ -75,28 +75,8 @@ async function run() {
             res.send(result)
 
         })
-
-        // post borrowed books
-        app.post('/borrowed', async (req, res) => {
-            const borrowedbook = req.body;
-            const result = await borrowedBooksCollection.insertOne(borrowedbook)
-            res.send(result)
-        })
-        // get all borrowed book
-        app.get('/borrowed', async (req, res) => {
-            const result = await borrowedBooksCollection.find().toArray()
-            res.send(result)
-        })
-        // get borrowed params
-        app.get('/borrowed/:email', async (req, res) => {
-            const email = req.params.email;
-            const fiter = { email: email }
-            const result = await borrowedBooksCollection.find(fiter).toArray()
-            res.send(result)
-        })
-
-        //-------------------
-        app.patch('/updateQuantity/:id', async (req, res) => {
+        // reduce quantity 
+        app.patch('/addbooks/:id', async (req, res) => {
             const id = req.params.id
             let { quantity } = req.body
             const filter = { _id: new ObjectId(id) }
@@ -111,6 +91,42 @@ async function run() {
             const result = await addBookCollection.updateOne(filter, update)
             res.send(result)
         })
+        //-------------------
+        // post borrowed books
+        // app.post('/borrowed', async (req, res) => {
+        //     const borrowedbook = req.body;
+        //     const result = await borrowedBooksCollection.insertOne(borrowedbook)
+        //     res.send(result)
+        // })
+        app.post('/borrowed', async (req, res) => {
+            const borrowedBook = req.body;
+            console.log(borrowedBook);
+            // Check if the user has already borrowed the book
+            const existingBorrowedBook = await borrowedBooksCollection.findOne({ name: borrowedBook.name, email: borrowedBook.email, bookName: borrowedBook.bookName });
+
+            if (!existingBorrowedBook) {
+                // If the book hasn't been borrowed by the user, insert the new borrowed book record
+                const result = await borrowedBooksCollection.insertOne(borrowedBook);
+                res.send(result);
+            } else {
+                // If the book has already been borrowed by the user, send a 400 response with a message
+                res.status(400).send({ message: 'You have already borrowed this book.' });
+            }
+        });
+
+        // get all borrowed book
+        app.get('/borrowed', async (req, res) => {
+            const result = await borrowedBooksCollection.find().toArray()
+            res.send(result)
+        })
+        // get borrowed params
+        app.get('/borrowed/:email', async (req, res) => {
+            const email = req.params.email;
+            const fiter = { email: email }
+            const result = await borrowedBooksCollection.find(fiter).toArray()
+            res.send(result)
+        })
+
 
         await client.connect();
         // Send a ping to confirm a successful connection
